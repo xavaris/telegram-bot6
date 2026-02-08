@@ -94,3 +94,56 @@ async def reminder_loop(app):
 # ================= /NOTIFYALL =================
 async def notify_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.from_user.id != ADMIN_ID:
+        return
+
+    if not context.args:
+        await update.message.reply_text("Użycie: /notifyall LINK")
+        return
+
+    link = context.args[0]
+
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    users = c.execute("SELECT user_id FROM users").fetchall()
+    conn.close()
+
+    sent = 0
+    for (uid,) in users:
+        try:
+            await context.bot.send_message(uid, f"🚨 NOWA GRUPA:\n{link}")
+            sent += 1
+        except:
+            pass
+
+    await update.message.reply_text(f"✅ Wysłano do {sent} użytkowników.")
+
+# ================= /STATS =================
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.from_user.id != ADMIN_ID:
+        return
+
+    total = count_users()
+    await update.message.reply_text(
+        f"📊 BACKUP STATS\n\n"
+        f"👥 Zapisanych użytkowników: {total}"
+    )
+
+# ================= MAIN =================
+def main():
+    init_db()
+
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    app.add_handler(MessageHandler(filters.ALL & filters.ChatType.GROUPS, group_listener))
+    app.add_handler(MessageHandler(filters.Regex("^/start"), start_handler))
+    app.add_handler(CommandHandler("notifyall", notify_all))
+    app.add_handler(CommandHandler("stats", stats))
+
+    asyncio.get_event_loop().create_task(reminder_loop(app))
+
+    print("BACKUP BOT STARTED")
+    app.run_polling()
+
+# ================= RUN =================
+if __name__ == "__main__":
+    main()
