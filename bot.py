@@ -17,12 +17,12 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 BACKUP_TOPIC = int(os.getenv("BACKUP_TOPIC"))
 
-GROUP_ID = -1003569725744
+GROUP_ID = -1003831965198
 DB_FILE = "users.db"
 
 BACKUP_BUTTON = InlineKeyboardMarkup([
     [InlineKeyboardButton("🔔 Zapisz się na backup",
-     url="https://t.me/Backupklaunybot?start=backup")]
+     url="https://t.me/Backupovybot?start=backup")]
 ])
 
 # ================= DATABASE =================
